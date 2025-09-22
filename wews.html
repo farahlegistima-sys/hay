@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Valentine Yes or No</title>
+<style>
+  body {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    margin: 0;
+    background-color: lightpink;
+    font-family: Arial, sans-serif;
+  }
+  .title { text-align: center; font-size:36px; color:violet; margin-bottom:30px; }
+  .options { display:flex; justify-content:center; gap:20px; }
+  .options button { padding:12px 24px; font-size:18px; border:none; border-radius:6px; cursor:pointer; transition:0.3s; }
+  .yes-btn { background-color:violet; color:white; }
+  .yes-btn:hover { background-color:#ba55d3; }
+  .no-btn { background-color:pink; color:white; }
+  .no-btn:hover { background-color:#ff69b4; }
+  .fullscreen { display:none; position:fixed; top:0; left:0; width:100%; height:100%; justify-content:center; align-items:center; flex-direction:column; z-index:9999; text-align:center; background:blue; }
+  video, img { max-width:70%; max-height:70%; border-radius:12px; }
+  #voiceBubble { padding:15px 25px; font-size:18px; border:none; border-radius:30px; background:violet; color:white; cursor:pointer; margin-top:20px; transition:0.3s; }
+  #voiceBubble:hover { background:#ba55d3; }
+  #heartContainer div { pointer-events:none; user-select:none; }
+  #prevSlide, #nextSlide { position:absolute; top:50%; transform:translateY(-50%); background:rgba(255,255,255,0.7); border:none; font-size:20px; border-radius:50%; width:35px; height:35px; cursor:pointer; }
+  #prevSlide { left:-40px; } #nextSlide { right:-40px; }
+</style>
+</head>
+<body>
+
+<!-- MAIN SCREEN -->
+<div id="mainContent">
+  <h1 class="title">Will you be my Valentine,<br>Nash Gayanes</h1>
+  <div class="options">
+    <button class="yes-btn" onclick="sayYes()">Yes</button>
+    <button class="no-btn" onclick="sayNo()">No</button>
+  </div>
+</div>
+
+<!-- YES FLOW -->
+<div id="yesContent" style="display:none; flex-direction:column; align-items:center; margin-top:30px; position:relative;">
+  <div id="slideshow" style="position:relative; width:250px; height:250px; margin-bottom:20px;">
+    <img id="slideImage" src="pic1.jpg" style="width:100%; height:100%; border-radius:12px; cursor:pointer;">
+    <button id="prevSlide">◀</button>
+    <button id="nextSlide">▶</button>
+  </div>
+
+  <div id="heartContainer" style="position:absolute; top:0; left:50%; transform:translateX(-50%); pointer-events:none;"></div>
+
+  <p style="font-size:18px; color:indigo; text-align:center; margin-bottom:15px;">
+    Weh sinungaling talaga 😆<br>Sige nga, gano moko kamahal rate mo?
+  </p>
+
+  <input type="range" min="0" max="10" value="5" id="ratingSlider" style="width:200px; margin-bottom:10px;">
+  <span id="ratingValue">5</span>/10
+
+  <button id="submitRating" style="margin-top:20px; padding:10px 20px; background-color:violet; color:white; border:none; border-radius:6px; cursor:pointer;">
+    Submit
+  </button>
+</div>
+
+<!-- 10/10 Overlay (Video) -->
+<div id="overlay10" class="fullscreen">
+  <video id="overlayVideo" src="sugar-trend1.mp4" autoplay loop></video>
+</div>
+
+<!-- YES VIDEO RESULT -->
+<div id="videoScreen" class="fullscreen" style="background:black; color:white;">
+  <div class="love-text">I love you ❤️</div>
+  <video controls autoplay>
+    <source src="myvideo1.mp4" type="video/mp4">
+  </video>
+</div>
+
+<!-- NO FLOW -->
+<div id="noScreen" class="fullscreen" style="background:black; color:white;">
+  <h1 style="font-size:40px; color:red;">Bakit hindi? 😢</h1>
+  <button id="voiceBubble">🔊 Tap to play voice</button>
+  <audio id="noVoice" src="myvoice.mp3"></audio>
+</div>
+
+<script>
+function sayYes(){
+  document.getElementById("mainContent").style.display="none";
+  document.getElementById("yesContent").style.display="flex";
+
+  // Slideshow
+  const slides = ["pic1.jpg","pic2.jpg","pic3.jpg","pic4.jpg"]; // replace with your pictures
+  let currentSlide = 0;
+  const slideImage = document.getElementById("slideImage");
+  const prevSlide = document.getElementById("prevSlide");
+  const nextSlide = document.getElementById("nextSlide");
+
+  prevSlide.addEventListener("click",()=>{ currentSlide=(currentSlide-1+slides.length)%slides.length; slideImage.src=slides[currentSlide]; });
+  nextSlide.addEventListener("click",()=>{ currentSlide=(currentSlide+1)%slides.length; slideImage.src=slides[currentSlide]; });
+
+  // Heart animation on click
+  const heartContainer = document.getElementById("heartContainer");
+  slideImage.addEventListener("click",()=>{
+    const heart = document.createElement("div");
+    heart.innerHTML="❤️";
+    heart.style.position="absolute";
+    heart.style.fontSize="30px";
+    heart.style.left=Math.random()*50+"%";
+    heart.style.bottom="0px";
+    heart.style.opacity=1;
+    heart.style.transition="all 2s ease-out";
+    heartContainer.appendChild(heart);
+    setTimeout(()=>{ heart.style.bottom="150px"; heart.style.opacity=0; heart.style.fontSize="40px"; },10);
+    setTimeout(()=>heart.remove(),2000);
+  });
+
+  // Rating slider
+  const slider = document.getElementById("ratingSlider");
+  const ratingValue = document.getElementById("ratingValue");
+  const overlay = document.getElementById("overlay10");
+  const overlayVideo = document.getElementById("overlayVideo");
+
+  slider.addEventListener("input", function(){
+    ratingValue.textContent = this.value;
+    if(parseInt(this.value) === 10){
+      document.getElementById("yesContent").style.display="none";
+      overlay.style.display="flex";
+      overlayVideo.currentTime=0;
+      overlayVideo.play();
+
+      setTimeout(()=>{
+        overlay.style.display="none";
+        overlayVideo.pause();
+        document.getElementById("yesContent").style.display="flex";
+      },16000);
+    }
+  });
+
+  // Submit button → video screen
+  document.getElementById("submitRating").onclick=function(){
+    document.getElementById("yesContent").style.display="none";
+    document.getElementById("videoScreen").style.display="flex";
+  };
+}
+
+function sayNo(){
+  document.getElementById("mainContent").style.display="none";
+  document.getElementById("yesContent").style.display="none";
+  document.getElementById("noScreen").style.display="flex";
+}
+
+// NO voice button
+const voiceBubble = document.getElementById("voiceBubble");
+const noVoice = document.getElementById("noVoice");
+voiceBubble.addEventListener("click",()=>{
+  if(noVoice.paused){ noVoice.play(); voiceBubble.textContent="🎙️ Playing...";}
+  else{ noVoice.pause(); noVoice.currentTime=0; voiceBubble.textContent="🔊 Tap to play voice";}
+});
+noVoice.addEventListener("ended",()=>{ voiceBubble.textContent="🔊 Tap to play voice"; });
+</script>
+</body>
+</html>
